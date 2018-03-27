@@ -13,7 +13,7 @@
 #include "nvs_flash.h"
 #include "driver/i2s.h"
 #include <math.h>
-
+#include "driver/adc.h"
 
 #define SAMPLE_RATE     (36000)
 #define I2S_NUM         (0)
@@ -24,6 +24,9 @@
 
 void app_main()
 {
+    adc1_config_width(ADC_WIDTH_12Bit);
+    adc1_config_channel_atten(ADC1_CHANNEL_0,ADC_ATTEN_11db);
+    int val = adc1_get_voltage(ADC1_CHANNEL_0);
     unsigned int i, sample_val;
     float sin_float, triangle_float, triangle_step = 65536.0 / SAMPLE_PER_CYCLE;
     //for 36Khz sample rates, we create 100Hz sine wave, every cycle need 36000/100 = 360 samples (4-bytes each sample)
@@ -67,4 +70,10 @@ void app_main()
 
         i2s_push_sample(I2S_NUM, (char *)&sample_val, portMAX_DELAY);
     }
+    while(1){
+      val = adc1_get_voltage(ADC1_CHANNEL_0);
+      printf("Value: %d\n", val);
+      vTaskDelay(10);
+    }
+
 }
